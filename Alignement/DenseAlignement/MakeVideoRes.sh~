@@ -1,0 +1,7 @@
+#!/bin/bash
+
+mkdir Res
+gnuplot "PlotRes.gp"
+ffmpeg -r 10 -i "Res/Res_%04d.png" -vcodec libx264 -framerate 10 $1
+rm -r Res
+

@@ -1,0 +1,59 @@
+nbParticles=system("find data -maxdepth 1 -type d | wc -l") - 3
+nbPositions=system("wc -l data/Particle_0000/Positions.txt")
+
+
+min(x,y) = (x < y) ? x : y
+max(x,y) = (x > y) ? x : y
+
+set datafile missing "-nan"
+
+X_min=10e10
+Y_min=10e10
+Z_min=10e10
+X_max=-10e10
+Y_max=-10e10
+Z_max=-10e10
+				
+do for [i=0:nbParticles-1:1]{  
+	stats sprintf('data/Particle_%04d/Positions.txt',i)  u ($1) name "Xc"		
+	X_min = min(X_min, Xc_min)
+	X_max = max(X_max, Xc_max)
+	stats sprintf('data/Particle_%04d/Positions.txt',i)  u ($3) name "Yc"		
+	Y_min = min(Y_min, Yc_min)
+	Y_max = max(Y_max, Yc_max)
+	stats sprintf('data/Particle_%04d/Positions.txt',i)  u ($2) name "Zc"		
+	Z_min = min(Z_min, Zc_min)
+	Z_max = max(Z_max, Zc_max)
+}
+
+
+    reset
+    set terminal pngcairo size 1890,1180 enhanced font 'Verdana,10'
+
+
+    set xrange [X_min-0.5:X_max+0.5]
+    set yrange [Y_min-0.5:Y_max+0.5]
+    set zrange [Z_min-0.5:Z_max+0.5]
+    set lmargin at screen 0.2;
+    set rmargin at screen 0.8;
+    set bmargin at screen 0.2;
+    set tmargin at screen 0.8;
+
+    set nokey
+    set xyplane 0
+    set view equal xyz
+    set grid
+
+    step = 1
+
+do  for [i=0:nbPositions-1:1]{
+	if (i > step) {start=i-step} else {start=1}
+    set output sprintf('Res/Res_%04.0f.png',i)	
+    splot for [ii=0:nbParticles-1:1] sprintf('data/Particle_%04d/Positions.txt',ii) every ::start::i+1 u 1:3:2  w l  , for [ii=0:nbParticles-1:1] sprintf('data/Particle_%04d/Positions.txt',ii) every ::i+1::i+1 u 1:3:2  w p ls 7 , for [ii=0:nbParticles-1:1] sprintf('data/Particle_%04d/Directions.txt',ii) every ::start::i+1 u 1:3:2:(($4)/5):(($6)/5):(($5)/5) w vectors, 'data/Best/PositionsKinect.txt' every ::start::i+1 u 1:3:2:(($4)/2):(($6)/2):(($5)/2) w vector
+#, for [ii=0:nbParticles-1:1] sprintf('data/Particle_%04d/Positions.txt',ii) every 1::1::1 u 1:3:2  w p ls 1 
+
+}
+
+
+
+

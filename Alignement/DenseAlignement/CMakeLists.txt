@@ -1,0 +1,7 @@
+cmake_minimum_required(VERSION 2.8)
+set (CMAKE_CXX_STANDARD 11)
+project( Homography )
+find_package( OpenCV )
+include_directories( ${OpenCV_INCLUDE_DIRS} )
+add_executable( Homography main.cpp)
+target_link_libraries( Homography ${OpenCV_LIBS} )
